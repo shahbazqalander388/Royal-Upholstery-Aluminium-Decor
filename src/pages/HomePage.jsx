@@ -3,8 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { services } from '../data/services';
+import { galleryItems } from '../data/gallery';
 import { faqs } from '../data/faqs';
 import { ServiceCard } from '../components/ServiceCard';
+import { GalleryLightbox } from '../components/GalleryLightbox';
 import { ServiceArea } from '../components/ServiceArea';
 import { Testimonials } from '../components/Testimonials';
 import { ContactForm } from '../components/ContactForm';
@@ -137,18 +139,51 @@ export const HomePage = () => {
     jsonLd: homeJsonLd,
   });
 
-  // Scroll to hash section if present (e.g. /#about, /#gallery)
+  const [galleryFilter, setGalleryFilter] = useState('all');
+  const [activeGalleryImage, setActiveGalleryImage] = useState(null);
+
+  // Scroll to targeted section on load or pathname/hash change (e.g. /about, /services, /gallery, /contact)
   useEffect(() => {
-    if (location.hash) {
-      const targetId = location.hash.replace('#', '');
+    const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+    let targetId = '';
+    if (path === '/about') targetId = 'about';
+    else if (path === '/services') targetId = 'services';
+    else if (path === '/gallery') targetId = 'gallery';
+    else if (path === '/contact') targetId = 'contact';
+    else if (location.hash) {
+      targetId = location.hash.replace('#', '');
+    }
+
+    if (targetId) {
       const el = document.getElementById(targetId);
       if (el) {
         setTimeout(() => {
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 120);
+        }, 150);
       }
     }
-  }, [location.hash]);
+  }, [location.pathname, location.hash]);
+
+  // Gallery items filtering
+  const filteredGallery = galleryItems.filter((item) => {
+    if (galleryFilter === 'all') return true;
+    return item.category === galleryFilter;
+  });
+
+  const upholsteryCount = galleryItems.filter((i) => i.category === 'upholstery').length;
+  const aluminiumCount = galleryItems.filter((i) => i.category === 'aluminium').length;
+
+  const currentGalleryIdx = activeGalleryImage
+    ? galleryItems.findIndex((i) => i.id === activeGalleryImage.id)
+    : -1;
+
+  const handlePrevGallery = () => {
+    if (currentGalleryIdx > 0) setActiveGalleryImage(galleryItems[currentGalleryIdx - 1]);
+  };
+
+  const handleNextGallery = () => {
+    if (currentGalleryIdx < galleryItems.length - 1) setActiveGalleryImage(galleryItems[currentGalleryIdx + 1]);
+  };
 
   // Top 6 featured services for homepage
   const featuredServices = [
@@ -461,107 +496,139 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. REAL WORK GALLERY SHOWCASE (id="gallery") */}
+      {/* 4. REAL WORK GALLERY (id="gallery") */}
       <section id="gallery" className="py-16 md:py-24 bg-[#07070A] scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-[#12121A] via-[#0E0E14] to-[#161622] border border-[#D4AF37]/30 shadow-2xl overflow-hidden">
-            {/* Ambient gold glow */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-              {/* Left Column: Text & CTA */}
-              <div className="lg:col-span-7 space-y-6 text-start">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A1A24] border border-[#D4AF37]/40 text-xs text-[#D4AF37] font-bold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? 'معرض الأعمال الحقيقية بالبحرين' : 'Real Project Portfolio • Bahrain'}</span>
-                </div>
-
-                <h2
-                  style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Cinzel', 'Outfit', serif" }}
-                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight"
-                >
-                  {language === 'ar' ? 'استكشف معرض أعمالنا المنفذة بالصور الحقيقية' : 'Explore Our Real Project Portfolio & Craftsmanship'}
-                </h2>
-
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
-                  {language === 'ar'
-                    ? 'قمنا بتخصيص صفحة مستقلة لمعرض أعمالنا تضم كافة الصور الحقيقية لمشاريعنا في البحرين (13+ مشروعاً) مع إمكانية التصفية بين تنجيد وتفصيل الكنب، تجديد الأقمشة، وتفصيل أبواب ونوافذ الألمنيوم بدقة عالية.'
-                    : 'We have dedicated an entire standalone gallery page showcasing all real completed projects across Bahrain (13+ projects) with instant filtering between custom sofa upholstery, fabric replacement, and architectural aluminium doors and windows.'}
-                </p>
-
-                {/* Badges / Highlights */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
-                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">13+</span>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {language === 'ar' ? 'مشروع موثق بالصور' : 'Real Projects'}
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
-                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">7</span>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {language === 'ar' ? 'تنجيد وتفصيل كنب' : 'Sofa & Upholstery'}
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
-                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">6</span>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {language === 'ar' ? 'أبواب ونوافذ ألمنيوم' : 'Aluminium Works'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action CTA Button to /gallery */}
-                <div className="pt-4 flex flex-wrap items-center gap-4">
-                  <Link
-                    to="/gallery"
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89324] hover:brightness-110 text-black font-extrabold text-sm shadow-xl shadow-[#D4AF37]/25 transition-all hover:scale-105"
-                  >
-                    <Eye className="w-5 h-5 text-black" />
-                    <span>{language === 'ar' ? 'افتح صفحة المعرض وتصفح الصور (13+)' : 'Open Gallery Page & View All Photos (13+)'}</span>
-                    <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-                  </Link>
-
-                  <a
-                    href={whatsappGeneralUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-[#181822] hover:bg-[#20202E] text-gray-200 border border-white/10 hover:border-[#D4AF37]/40 font-bold text-sm transition-all"
-                  >
-                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                    <span>{language === 'ar' ? 'استفسار واتساب' : 'WhatsApp Inquiry'}</span>
-                  </a>
-                </div>
+          {/* Header & Filter Tabs */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#14141C] border border-[#D4AF37]/30 text-xs text-[#D4AF37] font-bold uppercase tracking-wider mb-3">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{language === 'ar' ? 'معرض الأعمال الحقيقية' : 'Real Project Portfolio'}</span>
               </div>
+              <h2
+                style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Cinzel', 'Outfit', serif" }}
+                className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight"
+              >
+                {t.gallerySection.title}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-400 mt-2">
+                {t.gallerySection.subtitle}
+              </p>
+            </div>
 
-              {/* Right Column: Visual Teaser Card pointing to /gallery */}
-              <div className="lg:col-span-5">
-                <Link
-                  to="/gallery"
-                  className="group relative block rounded-2xl overflow-hidden border border-[#D4AF37]/40 shadow-2xl shadow-black/80 aspect-[4/3] bg-black cursor-pointer transition-all hover:border-[#D4AF37]"
-                >
+            {/* Filter Tabs */}
+            <div className="inline-flex items-center p-1.5 rounded-2xl bg-[#111117] border border-white/10 shadow-xl self-start md:self-auto gap-1">
+              <button
+                onClick={() => setGalleryFilter('all')}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  galleryFilter === 'all'
+                    ? 'bg-[#D4AF37] text-black shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                {t.gallerySection.filterAll} ({galleryItems.length})
+              </button>
+
+              <button
+                onClick={() => setGalleryFilter('upholstery')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  galleryFilter === 'upholstery'
+                    ? 'bg-[#D4AF37] text-black shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                <Scissors className="w-3.5 h-3.5" />
+                <span>{t.gallerySection.filterUpholstery} ({upholsteryCount})</span>
+              </button>
+
+              <button
+                onClick={() => setGalleryFilter('aluminium')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  galleryFilter === 'aluminium'
+                    ? 'bg-[#D4AF37] text-black shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                <AppWindow className="w-3.5 h-3.5" />
+                <span>{t.gallerySection.filterAluminium} ({aluminiumCount})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Grid of All Real Projects */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredGallery.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setActiveGalleryImage(item)}
+                className="group relative rounded-2xl overflow-hidden bg-[#111116] border border-white/10 hover:border-[#D4AF37]/60 cursor-pointer shadow-xl transition-all duration-300 flex flex-col"
+              >
+                {/* Image with fixed aspect ratio */}
+                <div className="relative aspect-[4/3] bg-black overflow-hidden">
                   <img
-                    src="https://res.cloudinary.com/dai2g47e4/image/upload/v1788772792/WhatsApp_Image_2026-08-24_at_9.14.47_PM_1_-_Copy_mneskp.jpg"
-                    alt="Royal Upholstery & Aluminium Gallery Bahrain"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95"
+                    src={item.src}
+                    alt={item.alt[language]}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
 
-                  <div className="absolute inset-x-0 bottom-0 p-6 text-start">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#D4AF37] text-black text-xs font-black uppercase mb-2 shadow-md">
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{language === 'ar' ? 'اضغط لفتح صفحة المعرض' : 'Click to View Full Gallery'}</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-[#F3E5AB] transition-colors mb-1">
-                      {language === 'ar' ? 'معرض صور تنجيد الكنب والألمنيوم' : 'Upholstery & Aluminium Project Gallery'}
+                  {/* Zoom Icon Button Badge */}
+                  <div className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center text-[#D4AF37] opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-md">
+                    <Eye className="w-4 h-4" />
+                  </div>
+
+                  <div className="absolute top-3.5 left-3.5">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider bg-black/80 text-[#D4AF37] border border-[#D4AF37]/30 backdrop-blur-sm">
+                      {item.categoryLabel[language]}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Footer Info */}
+                <div className="p-5 bg-[#0F0F15] border-t border-white/5 flex flex-col justify-between flex-1">
+                  <div>
+                    <h3 className="text-base font-bold text-white group-hover:text-[#F3E5AB] transition-colors mb-1.5 line-clamp-1">
+                      {item.title[language]}
                     </h3>
-                    <p className="text-xs text-gray-300">
-                      {language === 'ar' ? '13 نموذجاً حقيقياً مع تفاصيل العمل والأسعار' : '13 authentic Bahrain projects with full details'}
+                    <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                      {item.desc[language]}
                     </p>
                   </div>
-                </Link>
+
+                  <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                    <span className="text-[#D4AF37] font-semibold flex items-center gap-1 group-hover:underline">
+                      {t.gallerySection.viewProject}
+                    </span>
+                    <span className="text-gray-400 text-[11px]">Bahrain Work</span>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Bottom WhatsApp Photo Consultation Banner */}
+          <div className="mt-14 rounded-2xl p-6 sm:p-8 bg-[#111118] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-start">
+            <div>
+              <h4 className="text-lg font-bold text-white mb-1">
+                {language === 'ar' ? 'هل تود تقييماً مجانياً لطلبك في البحرين؟' : 'Need a Free Quotation for Your Furniture or Aluminium?'}
+              </h4>
+              <p className="text-xs sm:text-sm text-gray-400">
+                {language === 'ar'
+                  ? 'أرسل لنا صورة الكنب أو الباب أو النافذة عبر واتساب للحصول على تسعيرة فورية ومحددة.'
+                  : 'Send us photos of your sofa, door, or window on WhatsApp for an immediate, customized quote.'}
+              </p>
             </div>
+            <a
+              href={whatsappGeneralUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89324] text-black font-extrabold text-xs sm:text-sm shadow-md hover:brightness-110 active:scale-95 transition-all"
+            >
+              <MessageCircle className="w-4 h-4 text-black fill-black/30" />
+              <span>{language === 'ar' ? 'أرسل صورة طلبك عبر واتساب' : 'WhatsApp Project Photo'}</span>
+            </a>
           </div>
         </div>
       </section>
@@ -731,6 +798,17 @@ export const HomePage = () => {
         </div>
       </section>
 
+      {/* Lightbox Modal */}
+      {activeGalleryImage && (
+        <GalleryLightbox
+          item={activeGalleryImage}
+          onClose={() => setActiveGalleryImage(null)}
+          onPrev={handlePrevGallery}
+          onNext={handleNextGallery}
+          hasPrev={currentGalleryIdx > 0}
+          hasNext={currentGalleryIdx < galleryItems.length - 1}
+        />
+      )}
     </div>
   );
 };

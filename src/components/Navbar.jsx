@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -14,6 +14,7 @@ export const Navbar = () => {
   const [currentSection, setCurrentSection] = useState('home');
   const location = useLocation();
   const navigate = useNavigate();
+  const isClickScrollingRef = useRef(false);
 
   // Prevent background scrolling when mobile menu drawer is open
   useBodyScrollLock(isOpen);
@@ -22,32 +23,25 @@ export const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  const currentPath = location.pathname.replace(/\/$/, '') || '/';
-  const isHomePage = currentPath === '/' || currentPath === '/home';
-
+  // Sync active section on initial load or route change
   useEffect(() => {
-    // Set active nav item based on route
-    if (currentPath === '/gallery') {
-      setCurrentSection('gallery');
-    } else if (currentPath === '/services') {
-      setCurrentSection('services');
-    } else if (currentPath === '/about') {
-      setCurrentSection('about');
-    } else if (currentPath === '/contact') {
-      setCurrentSection('contact');
-    } else if (isHomePage) {
-      setCurrentSection('home');
-    }
-  }, [currentPath, isHomePage]);
+    const current = location.pathname.replace(/\/$/, '') || '/';
+    if (current === '/gallery') setCurrentSection('gallery');
+    else if (current === '/services') setCurrentSection('services');
+    else if (current === '/about') setCurrentSection('about');
+    else if (current === '/contact') setCurrentSection('contact');
+    else setCurrentSection('home');
+  }, [location.pathname]);
 
+  // Scroll Spy with dynamic URL update in the browser address bar
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
-      if (!isHomePage) return;
+      if (isClickScrollingRef.current) return;
 
       const sections = ['home', 'about', 'services', 'gallery', 'contact'];
-      const scrollPos = window.scrollY + 250;
+      const scrollPos = window.scrollY + 280;
 
       for (const id of sections) {
         const el = document.getElementById(id);
@@ -56,15 +50,27 @@ export const Navbar = () => {
           const height = el.offsetHeight;
           if (scrollPos >= top && scrollPos < top + height) {
             setCurrentSection(id);
+            const targetPath = id === 'home' ? '/' : `/${id}`;
+            if (window.location.pathname !== targetPath) {
+              window.history.replaceState(null, '', targetPath + (window.location.search || ''));
+            }
             break;
           }
+        }
+      }
+
+      // If scrolled to the bottom of the page, ensure contact section is selected
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 70) {
+        setCurrentSection('contact');
+        if (window.location.pathname !== '/contact') {
+          window.history.replaceState(null, '', '/contact' + (window.location.search || ''));
         }
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
+  }, []);
 
   const navItems = [
     { id: 'home', label: t.nav.home, path: '/' },
@@ -78,14 +84,20 @@ export const Navbar = () => {
     e.preventDefault();
     setIsOpen(false);
 
-    if (item.id === 'home') {
-      if (isHomePage) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        navigate('/');
-      }
+    const targetId = item.id;
+    const targetPath = item.id === 'home' ? '/' : `/${item.id}`;
+
+    const el = document.getElementById(targetId);
+    if (el) {
+      isClickScrollingRef.current = true;
+      setCurrentSection(item.id);
+      window.history.pushState(null, '', targetPath + (window.location.search || ''));
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        isClickScrollingRef.current = false;
+      }, 750);
     } else {
-      navigate(item.path);
+      navigate(targetPath);
     }
   };
 
@@ -149,10 +161,10 @@ export const Navbar = () => {
             {navItems.map((item) => {
               const isActive = currentSection === item.id;
               return (
-                <Link
+                <a
                   key={item.id}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
+                  href={item.path}
+                  onClick={(e) => handleNavClick(e, item)}
                   className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative cursor-pointer ${
                     isActive
                       ? 'text-[#F3E5AB] font-bold bg-[#D4AF37]/15 border border-[#D4AF37]/40 shadow-sm'
@@ -160,7 +172,7 @@ export const Navbar = () => {
                   }`}
                 >
                   {item.label}
-                </Link>
+                </a>
               );
             })}
           </nav>
@@ -205,54 +217,54 @@ export const Navbar = () => {
           />
           <div className="sm:hidden fixed inset-x-0 top-full bg-[#0B0B0F]/98 border-b border-[#D4AF37]/30 px-6 py-6 shadow-2xl backdrop-blur-xl animate-fadeIn z-40 max-h-[calc(100vh-80px)] overflow-y-auto">
             <div className="flex flex-col gap-2">
-            {navItems.map((item) => {
-              const isActive = currentSection === item.id;
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-base font-medium transition-all ${
-                    isActive
-                      ? 'bg-[#D4AF37]/15 text-[#F3E5AB] font-bold border border-[#D4AF37]/40'
-                      : 'text-gray-300 hover:text-white hover:bg-white/5'
-                  }`}
+              {navItems.map((item) => {
+                const isActive = currentSection === item.id;
+                return (
+                  <a
+                    key={item.id}
+                    href={item.path}
+                    onClick={(e) => handleNavClick(e, item)}
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-all ${
+                      isActive
+                        ? 'bg-[#D4AF37]/15 text-[#F3E5AB] font-bold border border-[#D4AF37]/40'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
+
+              <div className="pt-4 mt-2 border-t border-white/10 flex flex-col gap-3">
+                {/* WhatsApp CTA */}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89324] text-black font-bold text-sm shadow-lg shadow-[#D4AF37]/20"
                 >
-                  {item.label}
-                </Link>
-              );
-            })}
+                  <MessageCircle className="w-5 h-5 fill-black/30" />
+                  <span>{t.nav.whatsappCta} ({SITE_CONFIG.contact.whatsappDisplay})</span>
+                </a>
 
-            <div className="pt-4 mt-2 border-t border-white/10 flex flex-col gap-3">
-              {/* WhatsApp CTA */}
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89324] text-black font-bold text-sm shadow-lg shadow-[#D4AF37]/20"
-              >
-                <MessageCircle className="w-5 h-5 fill-black/30" />
-                <span>{t.nav.whatsappCta} ({SITE_CONFIG.contact.whatsappDisplay})</span>
-              </a>
+                {/* Simple Call CTA */}
+                <a
+                  href={`tel:${SITE_CONFIG.contact.callRaw}`}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#181820] text-gray-200 border border-white/10 font-medium text-sm hover:border-[#D4AF37]/40 transition-colors"
+                >
+                  <Phone className="w-4 h-4 text-[#D4AF37]" />
+                  <span>{t.nav.callCta}: <strong className="text-white" dir="ltr">{SITE_CONFIG.contact.callDisplay}</strong></span>
+                </a>
 
-              {/* Simple Call CTA */}
-              <a
-                href={`tel:${SITE_CONFIG.contact.callRaw}`}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#181820] text-gray-200 border border-white/10 font-medium text-sm hover:border-[#D4AF37]/40 transition-colors"
-              >
-                <Phone className="w-4 h-4 text-[#D4AF37]" />
-                <span>{t.nav.callCta}: <strong className="text-white" dir="ltr">{SITE_CONFIG.contact.callDisplay}</strong></span>
-              </a>
-
-              <div className="flex items-center justify-between pt-2 px-1 text-xs text-gray-400">
-                <span>{t.brand.availability}</span>
-                <span className="text-amber-300 font-semibold">{t.hero.badge}</span>
+                <div className="flex items-center justify-between pt-2 px-1 text-xs text-gray-400">
+                  <span>{t.brand.availability}</span>
+                  <span className="text-amber-300 font-semibold">{t.hero.badge}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
-    )}
-  </header>
+        </>
+      )}
+    </header>
   );
 };
