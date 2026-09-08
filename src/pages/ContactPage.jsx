@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { ContactForm } from '../components/ContactForm';
 import { ServiceArea } from '../components/ServiceArea';
+import { useSEO } from '../hooks/useSEO';
 import {
   Phone,
   Mail,
@@ -15,6 +16,23 @@ import {
 
 export const ContactPage = () => {
   const { language, isRTL, t } = useLanguage();
+
+  const contactTitle =
+    language === 'ar'
+      ? 'اتصل بنا واحصل على عرض سعر مجاني | رويال للديكور البحرين'
+      : 'Contact Us & Free Quote | Royal Upholstery & Aluminium Decor Bahrain';
+
+  const contactDesc =
+    language === 'ar'
+      ? 'تواصل مباشرة مع رويال لديكورات التنجيد والألمنيوم في البحرين عبر الهاتف أو واتساب 24/7. احصل على استشارة وعرض أسعار فوري لخدمات التنجيد والألمنيوم.'
+      : 'Contact Royal Upholstery & Aluminium Decor Bahrain 24/7 via phone or WhatsApp (+973 3341 3852). Fast on-site visits and free quotations across all Bahrain.';
+
+  useSEO({
+    title: contactTitle,
+    description: contactDesc,
+    keywords: language === 'ar' ? 'اتصال رويال تنجيد البحرين, رقم هاتف تنجيد البحرين, واتساب تنجيد البحرين' : 'contact royal upholstery Bahrain, phone number sofa repair Bahrain, whatsapp upholstery',
+    canonical: 'https://royalupholsterybh.com/contact',
+  });
 
   const whatsappUrl = `https://wa.me/${SITE_CONFIG.contact.whatsappClean}?text=${encodeURIComponent(
     language === 'ar'

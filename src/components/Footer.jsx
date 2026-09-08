@@ -21,11 +21,11 @@ export const Footer = () => {
   ];
 
   const quickLinks = [
-    { label: t.nav.home, to: '/#home' },
-    { label: t.nav.about, to: '/#about' },
-    { label: t.nav.services, to: '/#services' },
-    { label: t.nav.gallery, to: '/#gallery' },
-    { label: t.nav.contact, to: '/#contact' },
+    { label: t.nav.home, to: '/' },
+    { label: t.nav.about, to: '/about' },
+    { label: t.nav.services, to: '/services' },
+    { label: t.nav.gallery, to: '/gallery' },
+    { label: t.nav.contact, to: '/contact' },
   ];
 
   const areasList = [
@@ -80,13 +80,13 @@ export const Footer = () => {
             <ul className="space-y-2.5 text-sm">
               {quickLinks.map((item) => (
                 <li key={item.to}>
-                  <a
-                    href={item.to}
+                  <Link
+                    to={item.to}
                     className="text-gray-400 hover:text-[#D4AF37] transition-colors flex items-center gap-1.5 group"
                   >
                     <ArrowUpRight className={`w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#D4AF37] ${isRTL ? 'rotate-[-90deg]' : ''}`} />
                     <span>{item.label}</span>
-                  </a>
+                  </Link>
                 </li>
               ))}
               <li>

@@ -4,12 +4,30 @@ import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { services } from '../data/services';
 import { ServiceCard } from '../components/ServiceCard';
+import { useSEO } from '../hooks/useSEO';
 import { Scissors, AppWindow, Layers, MessageCircle, Phone } from 'lucide-react';
 
 export const ServicesPage = () => {
   const { language, isRTL, t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const catQuery = searchParams.get('cat');
+
+  const servicesTitle =
+    language === 'ar'
+      ? 'خدمات التنجيد والألمنيوم في البحرين (15 خدمة) | رويال للديكور'
+      : 'Upholstery & Aluminium Services Bahrain (15 Services) | Royal Decor';
+
+  const servicesDesc =
+    language === 'ar'
+      ? 'استكشف كافة خدمات التنجيد وتفصيل الكنب، تجديد الأقمشة، الستائر، وأبواب ونوافذ الألمنيوم وصيانتها في البحرين. اتصل الآن أو راسلنا عبر واتساب 24/7.'
+      : 'Explore all 15 upholstery and aluminium services across Bahrain. Custom sofa making, fabric replacement, curtain making, blinds, aluminium doors and windows.';
+
+  useSEO({
+    title: servicesTitle,
+    description: servicesDesc,
+    keywords: language === 'ar' ? 'خدمات تنجيد البحرين, تصليح كنب, ابواب المنيوم البحرين, تفصيل ستائر' : 'upholstery services Bahrain, sofa repair, aluminium doors, curtains Bahrain',
+    canonical: 'https://royalupholsterybh.com/services',
+  });
 
   const [activeFilter, setActiveFilter] = useState(() => {
     if (catQuery === 'upholstery' || catQuery === 'aluminium') {

@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { X, ChevronLeft, ChevronRight, MessageCircle, ZoomIn } from 'lucide-react';
 
 export const GalleryLightbox = ({ item, onClose, onPrev, onNext, hasPrev, hasNext }) => {
   const { language, isRTL, t } = useLanguage();
+
+  // Bulletproof lock of body scrolling when lightbox is open
+  useBodyScrollLock(Boolean(item));
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -25,11 +29,9 @@ export const GalleryLightbox = ({ item, onClose, onPrev, onNext, hasPrev, hasNex
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'auto';
     };
   }, [onClose, onPrev, onNext, hasPrev, hasNext, isRTL]);
 

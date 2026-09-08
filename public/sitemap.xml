@@ -1,20 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage -->
   <url>
     <loc>https://royalupholsterybh.com/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/" />
     <xhtml:link rel="alternate" hreflang="ar" href="https://royalupholsterybh.com/?lang=ar" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://royalupholsterybh.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Dedicated Gallery Page with Google Image Sitemap -->
   <url>
-    <loc>https://royalupholsterybh.com/about</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/about" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://royalupholsterybh.com/about?lang=ar" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://royalupholsterybh.com/gallery</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/gallery" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://royalupholsterybh.com/gallery?lang=ar" />
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+
+    <!-- 13 Real Work Portfolio Images -->
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772792/WhatsApp_Image_2026-08-24_at_9.14.47_PM_1_-_Copy_mneskp.jpg</image:loc>
+      <image:title>Luxury Sofa Upholstery and Cushion Crafting Bahrain</image:title>
+      <image:caption>Custom luxury sofa upholstery and cushion fabrication in Bahrain workshop</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772794/WhatsApp_Image_2026-08-24_at_9.14.48_PM_1_h4jazg.jpg</image:loc>
+      <image:title>Custom Living Room Sofa Tailoring Bahrain</image:title>
+      <image:caption>Handcrafted living room sofa with royal finish in Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772794/WhatsApp_Image_2026-08-24_at_9.14.47_PM_zlswmv.jpg</image:loc>
+      <image:title>Sofa Frame and Upholstery Re-Covering Bahrain</image:title>
+      <image:caption>Complete sofa renewal and fabric replacement Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772794/WhatsApp_Image_2026-08-24_at_9.14.46_PM_1_xsel2d.jpg</image:loc>
+      <image:title>Deep-Seated Sofa Craftsmanship Bahrain</image:title>
+      <image:caption>Ergonomic comfortable sofa making by Royal Upholstery Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772794/WhatsApp_Image_2026-08-24_at_9.14.46_PM_dyhv7y.jpg</image:loc>
+      <image:title>Sectional Corner Sofa Upholstery Bahrain</image:title>
+      <image:caption>Modern sectional corner sofa upholstery Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772793/WhatsApp_Image_2026-08-24_at_9.14.45_PM_r6k58x.jpg</image:loc>
+      <image:title>Furniture Restyling and Cushion Renewal Bahrain</image:title>
+      <image:caption>Furniture refurbishing and cushion reshaping Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772793/WhatsApp_Image_2026-08-24_at_9.14.44_PM_d3x91f.jpg</image:loc>
+      <image:title>Premium Velvet Sofa Fabric Fitting Bahrain</image:title>
+      <image:caption>Custom velvet textile upholstery Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.08_PM_ytrt7x.jpg</image:loc>
+      <image:title>Precision Aluminium Door Fabrication Bahrain</image:title>
+      <image:caption>Modern black-profile aluminium glass door Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.08_PM_1_a2i0ox.jpg</image:loc>
+      <image:title>Custom Aluminium Window Installation Bahrain</image:title>
+      <image:caption>Architectural aluminium frame window installation Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.09_PM_hvh64c.jpg</image:loc>
+      <image:title>Interior Aluminium and Glass Partition Bahrain</image:title>
+      <image:caption>Custom aluminium glass divider partition Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.09_PM_1_aek0n2.jpg</image:loc>
+      <image:title>Aluminium Frame and Hardware Servicing Bahrain</image:title>
+      <image:caption>Aluminium alignment, hinges, and lock maintenance Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.10_PM_vjflio.jpg</image:loc>
+      <image:title>Modern Aluminium Entryway Door Installation Bahrain</image:title>
+      <image:caption>Weather-resistant premium aluminium entrance door Bahrain</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/dai2g47e4/image/upload/v1788772795/WhatsApp_Image_2026-08-24_at_11.23.10_PM_1_e417ov.jpg</image:loc>
+      <image:title>Heavy-Duty Aluminium Structure Workshop Bahrain</image:title>
+      <image:caption>Custom architectural aluminium profile fabrication Bahrain</image:caption>
+    </image:image>
   </url>
+
+  <!-- Services Page -->
   <url>
     <loc>https://royalupholsterybh.com/services</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/services" />
@@ -22,13 +96,17 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- About Page -->
   <url>
-    <loc>https://royalupholsterybh.com/gallery</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/gallery" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://royalupholsterybh.com/gallery?lang=ar" />
-    <changefreq>weekly</changefreq>
+    <loc>https://royalupholsterybh.com/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/about" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://royalupholsterybh.com/about?lang=ar" />
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Contact Page -->
   <url>
     <loc>https://royalupholsterybh.com/contact</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://royalupholsterybh.com/contact" />

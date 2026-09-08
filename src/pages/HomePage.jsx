@@ -3,13 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { services } from '../data/services';
-import { galleryItems } from '../data/gallery';
 import { faqs } from '../data/faqs';
 import { ServiceCard } from '../components/ServiceCard';
-import { GalleryLightbox } from '../components/GalleryLightbox';
 import { ServiceArea } from '../components/ServiceArea';
 import { Testimonials } from '../components/Testimonials';
 import { ContactForm } from '../components/ContactForm';
+import { useSEO } from '../hooks/useSEO';
 import {
   ShieldCheck,
   Home as HomeIcon,
@@ -39,23 +38,109 @@ const iconLookup = {
 
 export const HomePage = () => {
   const { language, isRTL, t } = useLanguage();
-  const [selectedImage, setSelectedImage] = useState(null);
   const [openFaqId, setOpenFaqId] = useState(1);
   const location = useLocation();
 
-  // Scroll to targeted section on load if user navigated to /about, /services, etc.
-  useEffect(() => {
-    const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-    let targetId = '';
-    if (path === '/about') targetId = 'about';
-    else if (path === '/services') targetId = 'services';
-    else if (path === '/gallery') targetId = 'gallery';
-    else if (path === '/contact') targetId = 'contact';
-    else if (location.hash) {
-      targetId = location.hash.replace('#', '');
-    }
+  // HomePage SEO & Rich JSON-LD Schemas
+  const homeTitle =
+    language === 'ar'
+      ? 'رويال لديكورات التنجيد والألمنيوم | تنجيد وتفصيل كنب وألمنيوم البحرين 24/7'
+      : 'Royal Upholstery & Aluminium Decor | Sofa & Aluminium Works Bahrain 24/7';
 
-    if (targetId) {
+  const homeDesc =
+    language === 'ar'
+      ? 'أفضل خدمات تنجيد وتفصيل الكنب، تصليح الأثاث، تفصيل الستائر والشتر، وأبواب ونوافذ الألمنيوم في كافة مناطق مملكة البحرين. خدمة 24 ساعة طوال الأسبوع.'
+      : 'Professional upholstery and aluminium decor across Bahrain. Expert custom sofa making, sofa repair, fabric replacement, curtains, aluminium doors, windows. Available 24/7.';
+
+  const homeKeywords =
+    language === 'ar'
+      ? 'تنجيد كنب البحرين, تصليح كنب البحرين, تفصيل كنب المنامة, قماش كنب البحرين, المنيوم البحرين, ابواب المنيوم البحرين, نوافذ المنيوم البحرين, ستائر البحرين, رويال للديكور'
+      : 'upholstery Bahrain, sofa repair Bahrain, sofa making Bahrain, sofa fabric replacement Bahrain, aluminium works Bahrain, aluminium doors Bahrain, aluminium windows Bahrain';
+
+  const homeJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'HomeAndConstructionBusiness',
+        '@id': 'https://royalupholsterybh.com/#business',
+        name: 'Royal Upholstery & Aluminium Decor',
+        alternateName: 'رويال لديكورات التنجيد والألمنيوم',
+        image: 'https://res.cloudinary.com/dai2g47e4/image/upload/v1788772792/WhatsApp_Image_2026-08-24_at_9.14.47_PM_1_-_Copy_mneskp.jpg',
+        telephone: '+97333413852',
+        email: 'walim6360@gmail.com',
+        url: 'https://royalupholsterybh.com/',
+        priceRange: 'BHD',
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: 'BH',
+          addressRegion: 'Capital Governorate',
+          addressLocality: 'Manama',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 26.2235,
+          longitude: 50.5876,
+        },
+        areaServed: [
+          { '@type': 'AdministrativeArea', name: 'Capital Governorate' },
+          { '@type': 'AdministrativeArea', name: 'Muharraq Governorate' },
+          { '@type': 'AdministrativeArea', name: 'Northern Governorate' },
+          { '@type': 'AdministrativeArea', name: 'Southern Governorate' },
+        ],
+        openingHoursSpecification: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+          ],
+          opens: '00:00',
+          closes: '23:59',
+        },
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Upholstery & Aluminium Services Bahrain',
+          itemListElement: services.map((s) => ({
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: s.name?.[language] || s.name?.en || '',
+              description: s.shortDesc?.[language] || s.shortDesc?.en || '',
+            },
+          })),
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://royalupholsterybh.com/#faq',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question[language] || faq.question.en,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer[language] || faq.answer.en,
+          },
+        })),
+      },
+    ],
+  };
+
+  useSEO({
+    title: homeTitle,
+    description: homeDesc,
+    keywords: homeKeywords,
+    canonical: 'https://royalupholsterybh.com/',
+    jsonLd: homeJsonLd,
+  });
+
+  // Scroll to hash section if present (e.g. /#about, /#gallery)
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace('#', '');
       const el = document.getElementById(targetId);
       if (el) {
         setTimeout(() => {
@@ -63,7 +148,7 @@ export const HomePage = () => {
         }, 120);
       }
     }
-  }, [location.pathname]);
+  }, [location.hash]);
 
   // Top 6 featured services for homepage
   const featuredServices = [
@@ -75,9 +160,6 @@ export const HomePage = () => {
     services[11], // Aluminium Repair
   ];
 
-  // 6 preview gallery items
-  const previewGallery = galleryItems.slice(0, 6);
-
   const toggleFaq = (id) => {
     setOpenFaqId(openFaqId === id ? null : id);
   };
@@ -87,18 +169,6 @@ export const HomePage = () => {
       ? 'مرحباً رويال لديكورات التنجيد والألمنيوم، أود الحصول على عرض أسعار لخدماتكم في البحرين.'
       : 'Hello Royal Upholstery & Aluminium Decor, I would like to get a quote for your services in Bahrain.'
   )}`;
-
-  const currentIdx = selectedImage
-    ? galleryItems.findIndex((i) => i.id === selectedImage.id)
-    : -1;
-
-  const handlePrev = () => {
-    if (currentIdx > 0) setSelectedImage(galleryItems[currentIdx - 1]);
-  };
-
-  const handleNext = () => {
-    if (currentIdx < galleryItems.length - 1) setSelectedImage(galleryItems[currentIdx + 1]);
-  };
 
   return (
     <div className="space-y-0">
@@ -391,56 +461,107 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. REAL WORK GALLERY (id="gallery") */}
-      <section id="gallery" className="py-16 md:py-24 bg-[#07070A] scroll-mt-20">
+      {/* 4. REAL WORK GALLERY SHOWCASE (id="gallery") */}
+      <section id="gallery" className="py-16 md:py-24 bg-[#07070A] scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37] block mb-2">
-                {language === 'ar' ? 'نماذج حقيقية من مشاريعنا' : 'Real Project Showcase'}
-              </span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-                {t.gallerySection.title}
-              </h2>
-              <p className="text-sm sm:text-base text-gray-400 mt-2">
-                {t.gallerySection.subtitle}
-              </p>
-            </div>
-          </div>
+          <div className="relative rounded-3xl p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-[#12121A] via-[#0E0E14] to-[#161622] border border-[#D4AF37]/30 shadow-2xl overflow-hidden">
+            {/* Ambient gold glow */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Grid of All 13 Unique Real Images */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedImage(item)}
-                className="group relative rounded-2xl overflow-hidden bg-[#111116] border border-white/10 hover:border-[#D4AF37]/50 cursor-pointer shadow-lg transition-all duration-300 aspect-[4/3]"
-              >
-                <img
-                  src={item.src}
-                  alt={item.alt[language]}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
-
-                <div className="absolute inset-x-0 bottom-0 p-5 text-start">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 inline-block mb-2">
-                    {item.categoryLabel[language]}
-                  </span>
-                  <h3 className="text-base font-bold text-white group-hover:text-[#F3E5AB] transition-colors line-clamp-1">
-                    {item.title[language]}
-                  </h3>
-                  <p className="text-xs text-gray-300 line-clamp-1 mt-1">
-                    {item.desc[language]}
-                  </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+              {/* Left Column: Text & CTA */}
+              <div className="lg:col-span-7 space-y-6 text-start">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A1A24] border border-[#D4AF37]/40 text-xs text-[#D4AF37] font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{language === 'ar' ? 'معرض الأعمال الحقيقية بالبحرين' : 'Real Project Portfolio • Bahrain'}</span>
                 </div>
 
-                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Eye className="w-4 h-4" />
+                <h2
+                  style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Cinzel', 'Outfit', serif" }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight"
+                >
+                  {language === 'ar' ? 'استكشف معرض أعمالنا المنفذة بالصور الحقيقية' : 'Explore Our Real Project Portfolio & Craftsmanship'}
+                </h2>
+
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
+                  {language === 'ar'
+                    ? 'قمنا بتخصيص صفحة مستقلة لمعرض أعمالنا تضم كافة الصور الحقيقية لمشاريعنا في البحرين (13+ مشروعاً) مع إمكانية التصفية بين تنجيد وتفصيل الكنب، تجديد الأقمشة، وتفصيل أبواب ونوافذ الألمنيوم بدقة عالية.'
+                    : 'We have dedicated an entire standalone gallery page showcasing all real completed projects across Bahrain (13+ projects) with instant filtering between custom sofa upholstery, fabric replacement, and architectural aluminium doors and windows.'}
+                </p>
+
+                {/* Badges / Highlights */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
+                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">13+</span>
+                    <span className="text-xs text-gray-400 font-medium">
+                      {language === 'ar' ? 'مشروع موثق بالصور' : 'Real Projects'}
+                    </span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
+                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">7</span>
+                    <span className="text-xs text-gray-400 font-medium">
+                      {language === 'ar' ? 'تنجيد وتفصيل كنب' : 'Sofa & Upholstery'}
+                    </span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[#0B0B10] border border-white/5">
+                    <span className="text-xl sm:text-2xl font-black text-[#F3E5AB] block mb-0.5">6</span>
+                    <span className="text-xs text-gray-400 font-medium">
+                      {language === 'ar' ? 'أبواب ونوافذ ألمنيوم' : 'Aluminium Works'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action CTA Button to /gallery */}
+                <div className="pt-4 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/gallery"
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89324] hover:brightness-110 text-black font-extrabold text-sm shadow-xl shadow-[#D4AF37]/25 transition-all hover:scale-105"
+                  >
+                    <Eye className="w-5 h-5 text-black" />
+                    <span>{language === 'ar' ? 'افتح صفحة المعرض وتصفح الصور (13+)' : 'Open Gallery Page & View All Photos (13+)'}</span>
+                    <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  </Link>
+
+                  <a
+                    href={whatsappGeneralUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-[#181822] hover:bg-[#20202E] text-gray-200 border border-white/10 hover:border-[#D4AF37]/40 font-bold text-sm transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                    <span>{language === 'ar' ? 'استفسار واتساب' : 'WhatsApp Inquiry'}</span>
+                  </a>
                 </div>
               </div>
-            ))}
+
+              {/* Right Column: Visual Teaser Card pointing to /gallery */}
+              <div className="lg:col-span-5">
+                <Link
+                  to="/gallery"
+                  className="group relative block rounded-2xl overflow-hidden border border-[#D4AF37]/40 shadow-2xl shadow-black/80 aspect-[4/3] bg-black cursor-pointer transition-all hover:border-[#D4AF37]"
+                >
+                  <img
+                    src="https://res.cloudinary.com/dai2g47e4/image/upload/v1788772792/WhatsApp_Image_2026-08-24_at_9.14.47_PM_1_-_Copy_mneskp.jpg"
+                    alt="Royal Upholstery & Aluminium Gallery Bahrain"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-6 text-start">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#D4AF37] text-black text-xs font-black uppercase mb-2 shadow-md">
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{language === 'ar' ? 'اضغط لفتح صفحة المعرض' : 'Click to View Full Gallery'}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white group-hover:text-[#F3E5AB] transition-colors mb-1">
+                      {language === 'ar' ? 'معرض صور تنجيد الكنب والألمنيوم' : 'Upholstery & Aluminium Project Gallery'}
+                    </h3>
+                    <p className="text-xs text-gray-300">
+                      {language === 'ar' ? '13 نموذجاً حقيقياً مع تفاصيل العمل والأسعار' : '13 authentic Bahrain projects with full details'}
+                    </p>
+                  </div>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -610,17 +731,6 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <GalleryLightbox
-          item={selectedImage}
-          onClose={() => setSelectedImage(null)}
-          onPrev={handlePrev}
-          onNext={handleNext}
-          hasPrev={currentIdx > 0}
-          hasNext={currentIdx < galleryItems.length - 1}
-        />
-      )}
     </div>
   );
 };

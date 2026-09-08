@@ -24,6 +24,8 @@
 html {
   scroll-behavior: smooth;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -31,6 +33,8 @@ body {
   color: #E2E8F0;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  width: 100%;
+  min-height: 100%;
 }
 
 [dir="rtl"] body,

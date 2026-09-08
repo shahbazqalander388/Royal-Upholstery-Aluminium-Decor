@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ScrollToTop } from './components/ScrollToTop';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
@@ -7,6 +8,10 @@ import { FloatingCall } from './components/FloatingCall';
 
 // Pages
 import { HomePage } from './pages/HomePage';
+import { GalleryPage } from './pages/GalleryPage';
+import { ServicesPage } from './pages/ServicesPage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -14,18 +19,21 @@ import { NotFoundPage } from './pages/NotFoundPage';
 function App() {
   return (
     <Router>
+      {/* Resets scroll to top cleanly on route transition */}
+      <ScrollToTop />
+
       <div className="min-h-screen flex flex-col bg-[#07070A] text-gray-100 selection:bg-[#D4AF37]/30 selection:text-[#F3E5AB]">
         <Navbar />
 
-        <main className="flex-1">
+        <main className="flex-1 pt-[72px] md:pt-[88px]">
           <Routes>
-            {/* Unified smooth-scrolling landing flow where URL updates dynamically */}
+            {/* Landing & Dedicated Pages */}
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
-            <Route path="/about" element={<HomePage />} />
-            <Route path="/services" element={<HomePage />} />
-            <Route path="/gallery" element={<HomePage />} />
-            <Route path="/contact" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
 
             {/* Standalone Legal & Error Pages */}
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

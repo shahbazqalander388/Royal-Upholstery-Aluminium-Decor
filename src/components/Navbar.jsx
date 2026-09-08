@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { Logo } from './Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Menu, X, Phone, MessageCircle } from 'lucide-react';
@@ -14,22 +15,39 @@ export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isMainPage = ['/', '/about', '/services', '/gallery', '/contact'].includes(
-    location.pathname.replace(/\/$/, '') || '/'
-  );
+  // Prevent background scrolling when mobile menu drawer is open
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     setIsOpen(false);
-  }, [location]);
+  }, [location.pathname]);
+
+  const currentPath = location.pathname.replace(/\/$/, '') || '/';
+  const isHomePage = currentPath === '/' || currentPath === '/home';
+
+  useEffect(() => {
+    // Set active nav item based on route
+    if (currentPath === '/gallery') {
+      setCurrentSection('gallery');
+    } else if (currentPath === '/services') {
+      setCurrentSection('services');
+    } else if (currentPath === '/about') {
+      setCurrentSection('about');
+    } else if (currentPath === '/contact') {
+      setCurrentSection('contact');
+    } else if (isHomePage) {
+      setCurrentSection('home');
+    }
+  }, [currentPath, isHomePage]);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
-      if (!isMainPage) return;
+      if (!isHomePage) return;
 
       const sections = ['home', 'about', 'services', 'gallery', 'contact'];
-      const scrollPos = window.scrollY + 220;
+      const scrollPos = window.scrollY + 250;
 
       for (const id of sections) {
         const el = document.getElementById(id);
@@ -38,26 +56,15 @@ export const Navbar = () => {
           const height = el.offsetHeight;
           if (scrollPos >= top && scrollPos < top + height) {
             setCurrentSection(id);
-            const targetPath = id === 'home' ? '/' : `/${id}`;
-            if (window.location.pathname !== targetPath) {
-              window.history.replaceState(null, '', targetPath + (window.location.search || ''));
-            }
             break;
           }
-        }
-      }
-
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60) {
-        setCurrentSection('contact');
-        if (window.location.pathname !== '/contact') {
-          window.history.replaceState(null, '', '/contact' + (window.location.search || ''));
         }
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMainPage]);
+  }, [isHomePage]);
 
   const navItems = [
     { id: 'home', label: t.nav.home, path: '/' },
@@ -71,13 +78,11 @@ export const Navbar = () => {
     e.preventDefault();
     setIsOpen(false);
 
-    if (isMainPage) {
-      const el = document.getElementById(item.id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setCurrentSection(item.id);
-        const targetPath = item.id === 'home' ? '/' : `/${item.id}`;
-        window.history.pushState(null, '', targetPath + (window.location.search || ''));
+    if (item.id === 'home') {
+      if (isHomePage) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/');
       }
     } else {
       navigate(item.path);
@@ -92,10 +97,10 @@ export const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-[#0A0A0E]/95 backdrop-blur-md border-b border-[#D4AF37]/20 shadow-xl shadow-black/40 py-3'
-          : 'bg-[#08080A]/90 backdrop-blur-sm border-b border-white/5 py-4'
+          ? 'bg-[#07070A]/98 backdrop-blur-md border-b border-[#D4AF37]/30 shadow-2xl shadow-black/80 py-2.5'
+          : 'bg-[#07070A]/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/50 py-3.5'
       }`}
     >
       {/* Top micro-bar for 24/7 status */}
@@ -144,10 +149,10 @@ export const Navbar = () => {
             {navItems.map((item) => {
               const isActive = currentSection === item.id;
               return (
-                <a
+                <Link
                   key={item.id}
-                  href={item.path}
-                  onClick={(e) => handleNavClick(e, item)}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
                   className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative cursor-pointer ${
                     isActive
                       ? 'text-[#F3E5AB] font-bold bg-[#D4AF37]/15 border border-[#D4AF37]/40 shadow-sm'
@@ -155,7 +160,7 @@ export const Navbar = () => {
                   }`}
                 >
                   {item.label}
-                </a>
+                </Link>
               );
             })}
           </nav>
@@ -192,15 +197,21 @@ export const Navbar = () => {
 
       {/* Mobile Navigation Drawer */}
       {isOpen && (
-        <div className="sm:hidden fixed inset-x-0 top-full bg-[#0B0B0F]/98 border-b border-[#D4AF37]/30 px-6 py-6 shadow-2xl backdrop-blur-xl animate-fadeIn">
-          <div className="flex flex-col gap-2">
+        <>
+          <div
+            className="sm:hidden fixed inset-0 top-[65px] bg-black/70 backdrop-blur-sm z-30"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="sm:hidden fixed inset-x-0 top-full bg-[#0B0B0F]/98 border-b border-[#D4AF37]/30 px-6 py-6 shadow-2xl backdrop-blur-xl animate-fadeIn z-40 max-h-[calc(100vh-80px)] overflow-y-auto">
+            <div className="flex flex-col gap-2">
             {navItems.map((item) => {
               const isActive = currentSection === item.id;
               return (
-                <a
+                <Link
                   key={item.id}
-                  href={item.path}
-                  onClick={(e) => handleNavClick(e, item)}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
                   className={`px-4 py-3 rounded-lg text-base font-medium transition-all ${
                     isActive
                       ? 'bg-[#D4AF37]/15 text-[#F3E5AB] font-bold border border-[#D4AF37]/40'
@@ -208,7 +219,7 @@ export const Navbar = () => {
                   }`}
                 >
                   {item.label}
-                </a>
+                </Link>
               );
             })}
 
@@ -240,7 +251,8 @@ export const Navbar = () => {
             </div>
           </div>
         </div>
-      )}
-    </header>
+      </>
+    )}
+  </header>
   );
 };

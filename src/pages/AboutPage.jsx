@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SITE_CONFIG } from '../config/site';
 import { ServiceArea } from '../components/ServiceArea';
+import { useSEO } from '../hooks/useSEO';
 import {
   ShieldCheck,
   Award,
@@ -19,6 +20,23 @@ import {
 
 export const AboutPage = () => {
   const { language, isRTL, t } = useLanguage();
+
+  const aboutTitle =
+    language === 'ar'
+      ? 'من نحن | رويال لديكورات التنجيد والألمنيوم في البحرين'
+      : 'About Us | Royal Upholstery & Aluminium Decor Bahrain';
+
+  const aboutDesc =
+    language === 'ar'
+      ? 'تعرف على رويال لديكورات التنجيد والألمنيوم، خبرة عريقة في تفصيل وصيانة الكنب والأثاث وديكورات وأبواب ونوافذ الألمنيوم في جميع محافظات البحرين 24/7.'
+      : 'Learn about Royal Upholstery & Aluminium Decor. Premium upholstery craftsmanship, sofa repair, curtain making, and precision aluminium works across Bahrain.';
+
+  useSEO({
+    title: aboutTitle,
+    description: aboutDesc,
+    keywords: language === 'ar' ? 'من نحن رويال تنجيد البحرين, ورشة تنجيد كنب البحرين, ورشة المنيوم البحرين' : 'about royal upholstery Bahrain, aluminium company Bahrain',
+    canonical: 'https://royalupholsterybh.com/about',
+  });
 
   const whatsappUrl = `https://wa.me/${SITE_CONFIG.contact.whatsappClean}?text=${encodeURIComponent(
     language === 'ar'
